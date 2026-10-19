@@ -1,0 +1,943 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Adithan weds Deepa · Wedding Invitation</title>
+  <link rel="icon" href="favicon.webp" type="image/webp">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400;1,500&family=Cinzel:wght@400;500;600&display=swap" rel="stylesheet">
+
+  <style>
+    /* ============================================================
+       DESIGN TOKENS
+    ============================================================ */
+    :root {
+      --wine:        #7B1D2E;
+      --wine-dark:   #4E0D1A;
+      --wine-deeper: #1E0408;
+      --wine-mid:    #5C1020;
+      --gold:        #C9A84C;
+      --gold-light:  #E8C96B;
+      --gold-pale:   #F5E6B8;
+      --gold-dim:    #8A6B2A;
+      --cream:       #FDF5E6;
+      --cream-dim:   rgba(253,245,230,0.75);
+      --shadow-gold: 0 0 32px rgba(201,168,76,0.28);
+    }
+
+    *, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      font-family: 'Cormorant Garamond', Georgia, serif;
+      background: var(--wine-deeper);
+      color: var(--cream);
+      overflow-x: hidden;
+    }
+
+    /* ============================================================
+       SNOW — global fixed overlay (below nav, above content)
+    ============================================================ */
+    #snow-layer {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: 300;
+      overflow: hidden;
+    }
+    .flake {
+      position: absolute;
+      top: -12px;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.82);
+      animation: snow-fall linear infinite;
+      will-change: transform, opacity;
+    }
+    @keyframes snow-fall {
+      0%   { transform: translateY(0) translateX(0) rotate(0deg);   opacity: var(--fop); }
+      50%  { transform: translateY(50vh) translateX(var(--sway)) rotate(180deg); }
+      100% { transform: translateY(110vh) translateX(0) rotate(360deg); opacity: 0; }
+    }
+
+    /* ============================================================
+       COVER — CLEAN DOUBLE DOOR
+    ============================================================ */
+    #cover {
+      position: fixed;
+      inset: 0;
+      z-index: 1000;
+      perspective: 1600px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    #cover-bg {
+      position: absolute;
+      inset: 0;
+      background:
+        radial-gradient(ellipse 80% 60% at 50% 100%, rgba(201,168,76,0.12) 0%, transparent 70%),
+        linear-gradient(160deg, #2A0A12 0%, #1A0408 50%, #2A0A12 100%);
+      transition: opacity 0.7s ease 0.5s; /* fade out after doors are mid-swing */
+    }
+    #cover.open #cover-bg { opacity: 0; }
+    .door {
+      position: absolute;
+      top: 0; bottom: 0;
+      width: 50.2%;
+      background: linear-gradient(175deg, #681525 0%, #3E0C18 35%, #5A1222 65%, #3E0C18 100%);
+      transition: transform 1.6s cubic-bezier(0.76, 0, 0.24, 1);
+      overflow: hidden;
+      will-change: transform;
+    }
+    .door::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: repeating-linear-gradient(
+        170deg, transparent, transparent 55px,
+        rgba(201,168,76,0.035) 55px, rgba(201,168,76,0.035) 56px
+      );
+    }
+    .door::after {
+      content: '';
+      position: absolute;
+      inset: 14px;
+      border: 1px solid rgba(201,168,76,0.28);
+      pointer-events: none;
+    }
+    .door-left  { left:0;  transform-origin:left center;  border-right:1px solid rgba(201,168,76,0.5); }
+    .door-right { right:0; transform-origin:right center; border-left: 1px solid rgba(201,168,76,0.5); }
+    .door-corner {
+      position: absolute; width:32px; height:32px;
+      border-color: rgba(201,168,76,0.45); border-style:solid;
+    }
+    .door-corner.tl { top:20px; left:20px; border-width:1px 0 0 1px; }
+    .door-corner.tr { top:20px; right:20px; border-width:1px 1px 0 0; }
+    .door-corner.bl { bottom:20px; left:20px; border-width:0 0 1px 1px; }
+    .door-corner.br { bottom:20px; right:20px; border-width:0 1px 1px 0; }
+    .door-center-line {
+      position: absolute;
+      top: 20%; bottom: 20%;
+      width: 1px;
+      background: linear-gradient(to bottom, transparent, rgba(201,168,76,0.3), transparent);
+    }
+    .door-left  .door-center-line { right: 0; }
+    .door-right .door-center-line { left: 0; }
+    #cover.open .door-left  { transform: rotateY(-112deg); }
+    #cover.open .door-right { transform: rotateY(112deg); }
+    #cover.open { pointer-events: none; }
+    #cover.gone { display: none; }
+    .cover-center {
+      position: relative;
+      z-index: 1001;
+      text-align: center;
+      pointer-events: none;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.4rem;
+      transition: opacity 0.25s ease;
+    }
+    #cover.open .cover-center { opacity: 0; }
+    .cover-date-label {
+      font-family: 'Cinzel', serif;
+      font-size: clamp(0.5rem, 1.5vw, 0.65rem);
+      letter-spacing: 0.5em;
+      color: rgba(201,168,76,0.55);
+      text-transform: uppercase;
+    }
+    .cover-initials {
+      font-family: 'Cinzel', serif;
+      font-size: clamp(3rem, 10vw, 6rem);
+      color: var(--gold);
+      letter-spacing: 0.38em;
+      text-shadow: var(--shadow-gold);
+      line-height: 1;
+    }
+    .cover-divider-v {
+      width: 1px; height: 48px;
+      background: linear-gradient(to bottom, transparent, var(--gold), transparent);
+    }
+    .cover-tap {
+      font-family: 'Cinzel', serif;
+      font-size: 0.56rem;
+      letter-spacing: 0.55em;
+      color: rgba(201,168,76,0.6);
+      text-transform: uppercase;
+      animation: glow-pulse 2.5s ease-in-out infinite;
+    }
+    @keyframes glow-pulse { 0%,100%{opacity:.35} 50%{opacity:1} }
+
+    /* ============================================================
+       SHARED COMPONENTS
+    ============================================================ */
+    .ornament {
+      display: flex; align-items: center; gap: 1rem;
+      margin: 1.4rem 0; width: 100%; max-width: 380px;
+    }
+    .ornament-line   { flex:1; height:1px; background:linear-gradient(to right,transparent,var(--gold-dim),transparent); }
+    .ornament-diamond{ width:8px; height:8px; border:1px solid var(--gold); transform:rotate(45deg); flex-shrink:0; }
+    .section-label {
+      font-family:'Cinzel',serif;
+      font-size:clamp(0.55rem,1.8vw,0.72rem);
+      letter-spacing:0.55em; color:var(--gold);
+      text-transform:uppercase; margin-bottom:0.4rem;
+    }
+    .section-title {
+      font-family:'Cormorant Garamond',serif;
+      font-size:clamp(2rem,7vw,3.8rem);
+      font-weight:300; font-style:italic; color:var(--cream);
+      line-height:1.15;
+    }
+
+    /* ============================================================
+       FADE-IN
+    ============================================================ */
+    .fade-in {
+      opacity:0; transform:translateY(26px);
+      transition: opacity .85s ease, transform .85s ease;
+    }
+    .fade-in.visible { opacity:1; transform:translateY(0); }
+    .fade-in.d1{transition-delay:.10s} .fade-in.d2{transition-delay:.20s}
+    .fade-in.d3{transition-delay:.30s} .fade-in.d4{transition-delay:.40s}
+    .fade-in.d5{transition-delay:.50s} .fade-in.d6{transition-delay:.60s}
+
+    /* ============================================================
+       HERO — simple, clean background
+    ============================================================ */
+    #hero {
+      min-height: 100vh;
+      display: flex; flex-direction:column;
+      align-items:center; justify-content:center;
+      text-align:center;
+      padding: 5rem 1.5rem 7rem;
+      position: relative;
+      background: linear-gradient(180deg, #2D0A12 0%, #1A0408 100%);
+    }
+    .hero-tagline {
+      font-family:'Cinzel',serif;
+      font-size:clamp(0.55rem,1.8vw,0.75rem);
+      letter-spacing:0.52em; color:var(--gold);
+      text-transform:uppercase; margin-bottom:0.7rem;
+    }
+    .hero-invite-text {
+      font-size:clamp(1rem,2.5vw,1.15rem);
+      font-style:italic; color:var(--cream-dim);
+      line-height:1.9; max-width:440px; margin-bottom:0.3rem;
+    }
+    .hero-names-wrap { position:relative; margin:0.5rem 0; }
+    .hero-name {
+      font-family:'Cormorant Garamond',serif;
+      font-size:clamp(4.5rem,14vw,9rem);
+      font-weight:400; font-style:italic;
+      color:var(--cream); line-height:.95; display:block;
+      text-shadow:0 0 60px rgba(201,168,76,0.14), 0 2px 20px rgba(0,0,0,0.45);
+    }
+    .hero-ampersand {
+      font-family:'Cinzel',serif;
+      font-size:clamp(1.8rem,5vw,3rem);
+      color:var(--gold); display:block;
+      margin:.2rem 0; text-shadow:var(--shadow-gold);
+    }
+    .hero-bottom-label {
+      font-family:'Cinzel',serif;
+      font-size:clamp(0.6rem,1.8vw,0.78rem);
+      letter-spacing:0.35em; color:var(--gold);
+      text-transform:uppercase; margin-top:0.8rem;
+    }
+    .hero-venue-sub {
+      font-size:clamp(0.88rem,2.3vw,1.02rem);
+      font-style:italic; color:var(--cream-dim); margin-top:.2rem;
+    }
+    .scroll-cue {
+      position:absolute; bottom:2rem; left:50%; transform:translateX(-50%);
+      display:flex; flex-direction:column; align-items:center; gap:.3rem;
+      font-family:'Cinzel',serif; font-size:.5rem; letter-spacing:.45em;
+      color:var(--gold-dim); text-transform:uppercase;
+      animation: float-down 2.2s ease-in-out infinite;
+    }
+    .scroll-cue-arrow { width:1px; height:34px; background:linear-gradient(to bottom,var(--gold-dim),transparent); }
+    @keyframes float-down { 0%,100%{transform:translateX(-50%) translateY(0)} 50%{transform:translateX(-50%) translateY(7px)} }
+
+    /* ============================================================
+       COUNTDOWN
+    ============================================================ */
+    #countdown {
+      min-height:100vh;
+      display:flex; flex-direction:column;
+      align-items:center; justify-content:center;
+      text-align:center; padding:5rem 1.5rem;
+      background:radial-gradient(ellipse at center, #4E0D1A 0%, #1E0408 100%);
+    }
+    .countdown-grid {
+      display:flex; align-items:flex-start;
+      gap:clamp(.7rem,4vw,2.8rem); margin-top:.4rem;
+    }
+    .cd-item { text-align:center; }
+    .cd-number {
+      font-family:'Cinzel',serif;
+      font-size:clamp(3rem,10vw,5.5rem);
+      color:var(--gold); line-height:1; display:block;
+      min-width:2ch; text-shadow:var(--shadow-gold);
+    }
+    .cd-label {
+      font-family:'Cinzel',serif;
+      font-size:clamp(.48rem,1.5vw,.65rem);
+      letter-spacing:.35em; color:var(--gold-dim);
+      text-transform:uppercase; margin-top:.5rem;
+    }
+    .cd-sep {
+      font-family:'Cinzel',serif;
+      font-size:clamp(2rem,6vw,3.5rem);
+      color:var(--gold-dim); margin-top:.15rem;
+      animation:colon-blink 1s step-end infinite;
+    }
+    @keyframes colon-blink { 0%,100%{opacity:1} 50%{opacity:.15} }
+    .cd-event-info { margin-top:2.5rem; }
+    .date-chip {
+      display:inline-block;
+      padding:.45rem 1.4rem;
+      border:1px solid rgba(201,168,76,.42); border-radius:2px;
+      font-family:'Cinzel',serif; font-size:clamp(.58rem,1.8vw,.75rem);
+      letter-spacing:.3em; color:var(--gold); text-transform:uppercase;
+      margin-bottom:.5rem;
+    }
+
+    /* ============================================================
+       EVENTS
+    ============================================================ */
+    #events {
+      min-height:100vh;
+      display:flex; flex-direction:column;
+      align-items:center; justify-content:center;
+      padding:5rem 1.5rem; text-align:center;
+      background:linear-gradient(180deg, #1E0408 0%, #380C18 50%, #1E0408 100%);
+    }
+    .events-grid {
+      display:grid;
+      grid-template-columns:repeat(auto-fit,minmax(260px,1fr));
+      gap:2rem; width:100%; max-width:780px; margin-top:.5rem;
+    }
+    .event-card {
+      position:relative;
+      background:linear-gradient(145deg,rgba(92,16,32,0.5),rgba(30,4,8,0.7));
+      border:1px solid rgba(201,168,76,0.28); border-radius:3px;
+      padding:2.5rem 1.8rem 2rem; text-align:center;
+      transition:border-color .35s, box-shadow .35s;
+    }
+    .event-card:hover { border-color:rgba(201,168,76,.55); box-shadow:0 0 40px rgba(201,168,76,.1); }
+    .event-card::before {
+      content:''; position:absolute; inset:10px;
+      border:1px solid rgba(201,168,76,.1); border-radius:2px; pointer-events:none;
+    }
+    .card-corner { position:absolute; width:18px; height:18px; border-color:rgba(201,168,76,.5); border-style:solid; }
+    .card-corner.tl{top:6px;left:6px;border-width:1px 0 0 1px}
+    .card-corner.tr{top:6px;right:6px;border-width:1px 1px 0 0}
+    .card-corner.bl{bottom:6px;left:6px;border-width:0 0 1px 1px}
+    .card-corner.br{bottom:6px;right:6px;border-width:0 1px 1px 0}
+    .card-icon-wrap { display:block; margin:0 auto 1.2rem; }
+    .card-title {
+      font-family:'Cinzel',serif;
+      font-size:clamp(.88rem,2.5vw,1.12rem);
+      letter-spacing:.38em; color:var(--gold);
+      text-transform:uppercase; margin-bottom:1.6rem;
+    }
+    .card-row {
+      display:flex; align-items:flex-start; gap:.7rem;
+      margin-bottom:.9rem; text-align:left;
+    }
+    .card-row-icon { color:var(--gold); font-size:.95rem; flex-shrink:0; margin-top:.1rem; }
+    .card-row-body {
+      font-size:clamp(.9rem,2.2vw,1rem); color:var(--cream-dim); line-height:1.65;
+    }
+    .card-row-body strong { display:block; color:var(--cream); font-weight:500; }
+    .card-note {
+      font-style:italic; font-size:clamp(.84rem,2vw,.94rem);
+      color:rgba(253,245,230,.46);
+      margin-top:1.4rem; line-height:1.7;
+      border-top:1px solid rgba(201,168,76,.14); padding-top:1.2rem;
+    }
+
+    /* ============================================================
+       FAMILIES SECTION
+    ============================================================ */
+    #families {
+      min-height:100vh;
+      display:flex; flex-direction:column;
+      align-items:center; justify-content:center;
+      text-align:center; padding:5rem 1.5rem;
+      background:radial-gradient(ellipse at center, #4E0D1A 0%, #1E0408 100%);
+    }
+    .families-subtitle {
+      font-family:'Cormorant Garamond',serif;
+      font-size:clamp(1.2rem,3.5vw,1.7rem);
+      font-style:italic; font-weight:300;
+      color:var(--cream-dim); margin-bottom:0.5rem;
+    }
+    .families-grid {
+      display:grid;
+      grid-template-columns:repeat(auto-fit,minmax(260px,1fr));
+      gap:2.8rem; width:100%; max-width:740px; margin-top:0.5rem;
+    }
+    .family-card {
+      position:relative;
+      background:linear-gradient(145deg,rgba(92,16,32,0.45),rgba(30,4,8,0.65));
+      border:1px solid rgba(201,168,76,0.28); border-radius:3px;
+      padding:3rem 2.4rem 3rem;
+      text-align:center;
+      transition:border-color .3s, box-shadow .3s;
+    }
+    .family-card:hover { border-color:rgba(201,168,76,0.55); box-shadow:0 0 35px rgba(201,168,76,0.08); }
+    .family-card::before {
+      content:''; position:absolute; inset:10px;
+      border:1px solid rgba(201,168,76,0.1); border-radius:2px; pointer-events:none;
+    }
+    .fc-corner { position:absolute; width:18px; height:18px; border-color:rgba(201,168,76,0.45); border-style:solid; }
+    .fc-corner.tl{top:6px;left:6px;border-width:1px 0 0 1px}
+    .fc-corner.tr{top:6px;right:6px;border-width:1px 1px 0 0}
+    .fc-corner.bl{bottom:6px;left:6px;border-width:0 0 1px 1px}
+    .fc-corner.br{bottom:6px;right:6px;border-width:0 1px 1px 0}
+    .family-role {
+      font-family:'Cinzel',serif;
+      font-size:clamp(0.7rem,2vw,0.85rem);
+      letter-spacing:.45em; color:var(--gold);
+      text-transform:uppercase; margin-bottom:1.2rem;
+    }
+    .fc-divider {
+      width:50px; height:1px;
+      background:linear-gradient(to right,transparent,var(--gold-dim),transparent);
+      margin:1rem auto 1.2rem;
+    }
+    .family-name {
+      font-family:'Cormorant Garamond',serif;
+      font-size:clamp(1.7rem,5vw,2.4rem);
+      font-style:italic; font-weight:400;
+      color:var(--cream); line-height:1.1; margin-bottom:.8rem;
+    }
+    .family-beloved {
+      font-family:'Cinzel',serif;
+      font-size:clamp(0.5rem,1.5vw,0.62rem);
+      letter-spacing:.3em; color:var(--gold-dim);
+      text-transform:uppercase; margin-bottom:1rem;
+    }
+    .family-parents {
+      font-size:clamp(.95rem,2.3vw,1.1rem);
+      color:var(--cream-dim); line-height:2.1;
+    }
+
+    /* ============================================================
+       VENUE
+    ============================================================ */
+    #venue {
+      min-height:100vh;
+      display:flex; flex-direction:column;
+      align-items:center; justify-content:center;
+      text-align:center; padding:5rem 1.5rem;
+      background:linear-gradient(180deg, #1E0408 0%, #380C18 50%, #1E0408 100%);
+    }
+    .venue-card {
+      max-width:480px; width:100%;
+      border:1px solid rgba(201,168,76,.3); border-radius:3px;
+      padding:3rem 2rem; position:relative;
+      background:linear-gradient(145deg,rgba(92,16,32,.35),rgba(30,4,8,.5));
+      margin-top:.5rem;
+    }
+    .venue-card::before {
+      content:''; position:absolute; inset:10px;
+      border:1px solid rgba(201,168,76,.1); border-radius:2px; pointer-events:none;
+    }
+    .venue-icon { font-size:1.8rem; display:block; margin-bottom:.9rem; }
+    .venue-name {
+      font-family:'Cormorant Garamond',serif;
+      font-size:clamp(1.6rem,5vw,2.4rem);
+      font-style:italic; font-weight:400;
+      color:var(--cream); margin-bottom:.8rem; line-height:1.25;
+    }
+    .venue-address {
+      font-size:clamp(.9rem,2.3vw,1.05rem);
+      color:var(--cream-dim); line-height:2; margin-bottom:2rem;
+    }
+    .map-btn {
+      display:inline-flex; align-items:center; gap:.5rem;
+      padding:.85rem 2rem;
+      border:1px solid var(--gold); color:var(--gold);
+      font-family:'Cinzel',serif; font-size:.7rem;
+      letter-spacing:.35em; text-transform:uppercase;
+      text-decoration:none; border-radius:2px;
+      transition:background .3s, color .3s;
+    }
+    .map-btn:hover { background:var(--gold); color:var(--wine-dark); }
+
+    /* ============================================================
+       BOTTOM NAVIGATION
+    ============================================================ */
+    #nav {
+      position:fixed; bottom:1.4rem; left:50%; transform:translateX(-50%);
+      z-index:500; display:flex; gap:.12rem;
+      background:rgba(30,4,8,.92);
+      border:1px solid rgba(201,168,76,.32); border-radius:50px;
+      padding:.42rem .85rem;
+      backdrop-filter:blur(14px); -webkit-backdrop-filter:blur(14px);
+      white-space:nowrap;
+    }
+    #nav a {
+      font-family:'Cinzel',serif;
+      font-size:clamp(.44rem,1.35vw,.6rem);
+      letter-spacing:.14em; color:rgba(201,168,76,.55);
+      text-decoration:none; text-transform:uppercase;
+      padding:.28rem .58rem; border-radius:30px;
+      transition:background .25s, color .25s;
+    }
+    #nav a:hover, #nav a.active { background:var(--gold); color:var(--wine-dark); }
+
+    /* ============================================================
+       FOOTER
+    ============================================================ */
+    footer {
+      padding: 5rem 1.5rem 10rem;
+      text-align:center;
+      background:var(--wine-deeper);
+      border-top:1px solid rgba(201,168,76,.18);
+    }
+    .footer-ring {
+      display:block; margin:0 auto 1.2rem;
+      width:48px; height:48px;
+      border:1px solid rgba(201,168,76,.35);
+      border-radius:50%;
+      position:relative;
+    }
+    .footer-ring::before, .footer-ring::after {
+      content:''; position:absolute;
+      width:28px; height:28px;
+      border:1px solid rgba(201,168,76,.5);
+      border-radius:50%;
+      top:50%; transform:translateY(-50%);
+    }
+    .footer-ring::before { left:-14px; background:rgba(201,168,76,.06); }
+    .footer-ring::after  { right:-14px; background:rgba(201,168,76,.06); }
+    .footer-quote {
+      font-family:'Cormorant Garamond',serif;
+      font-size:clamp(1.1rem,3vw,1.5rem);
+      font-style:italic; font-weight:300;
+      color:var(--gold-pale);
+      max-width:520px; margin:0 auto 1.2rem; line-height:1.9;
+    }
+    .footer-closing {
+      font-family:'Cormorant Garamond',serif;
+      font-size:clamp(1rem,2.8vw,1.3rem);
+      font-style:italic; color:var(--cream-dim);
+      margin-bottom:1.5rem; line-height:1.8;
+    }
+    .footer-couple {
+      font-family:'Cormorant Garamond',serif;
+      font-size:clamp(2.8rem,10vw,6.5rem);
+      font-style:italic; font-weight:400;
+      color:var(--gold);
+      text-shadow:var(--shadow-gold);
+      line-height:1.05;
+      margin-bottom:.6rem;
+      letter-spacing:-0.01em;
+    }
+    .footer-date {
+      font-family:'Cinzel',serif;
+      font-size:clamp(.62rem,1.8vw,.8rem);
+      letter-spacing:.42em; color:var(--gold-dim);
+      text-transform:uppercase;
+    }
+
+    /* ============================================================
+       RESPONSIVE
+    ============================================================ */
+    @media(max-width:500px){
+      .countdown-grid{gap:.4rem}
+      .cd-sep{font-size:1.8rem;margin-top:.3rem}
+      .events-grid,.families-grid{grid-template-columns:1fr}
+      #nav{padding:.4rem .55rem}
+      #nav a{padding:.26rem .42rem;letter-spacing:.08em}
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Global snow layer (above all sections, below nav & cover) -->
+  <div id="snow-layer" aria-hidden="true"></div>
+
+  <!-- ======================================================
+       COVER — CLEAN DOUBLE DOOR
+  ====================================================== -->
+  <div id="cover" role="button" tabindex="0" aria-label="Click to open invitation">
+    <div id="cover-bg"></div>
+    <div class="door door-left">
+      <div class="door-center-line"></div>
+      <div class="door-corner tl"></div>
+      <div class="door-corner bl"></div>
+    </div>
+    <div class="door door-right">
+      <div class="door-center-line"></div>
+      <div class="door-corner tr"></div>
+      <div class="door-corner br"></div>
+    </div>
+    <div class="cover-center">
+      <div class="cover-date-label">16 · 11 · 2026</div>
+      <div class="cover-initials">A &amp; D</div>
+      <div class="cover-divider-v"></div>
+      <div class="cover-tap">Tap to open</div>
+    </div>
+  </div>
+
+  <!-- ======================================================
+       NAVIGATION
+  ====================================================== -->
+  <nav id="nav">
+    <a href="#hero"      class="active">Home</a>
+    <a href="#countdown">Countdown</a>
+    <a href="#events">Events</a>
+    <a href="#families">Family</a>
+    <a href="#venue">Venue</a>
+  </nav>
+
+  <!-- ======================================================
+       MAIN
+  ====================================================== -->
+  <main>
+
+    <!-- ===== HERO — clean, no background decoration ===== -->
+    <section id="hero">
+      <p class="hero-tagline fade-in">Together With Our Families</p>
+
+      <p class="hero-invite-text fade-in d1">
+        We are delighted to invite you<br>
+        to share in our joy as we begin<br>
+        a new chapter in our lives
+      </p>
+
+      <div class="ornament fade-in d2">
+        <div class="ornament-line"></div>
+        <div class="ornament-diamond"></div>
+        <div class="ornament-line"></div>
+      </div>
+
+      <div class="hero-names-wrap">
+        <span class="hero-name fade-in d2">Adithan</span>
+        <span class="hero-ampersand fade-in d3">&amp;</span>
+        <span class="hero-name fade-in d3">Deepa</span>
+      </div>
+
+      <div class="ornament fade-in d4">
+        <div class="ornament-line"></div>
+        <div class="ornament-diamond"></div>
+        <div class="ornament-line"></div>
+      </div>
+
+      <p class="hero-bottom-label fade-in d4">Request the pleasure of your presence</p>
+      <p class="hero-venue-sub fade-in d5">on the occasion of our wedding celebrations</p>
+
+      <div class="scroll-cue" aria-hidden="true">
+        <span>Scroll</span>
+        <div class="scroll-cue-arrow"></div>
+      </div>
+    </section>
+
+    <!-- ===== COUNTDOWN ===== -->
+    <section id="countdown">
+      <p class="section-label fade-in">Counting Down To</p>
+      <h2 class="section-title fade-in">Muhurtham</h2>
+
+      <div class="ornament fade-in">
+        <div class="ornament-line"></div>
+        <div class="ornament-diamond"></div>
+        <div class="ornament-line"></div>
+      </div>
+
+      <div class="countdown-grid fade-in">
+        <div class="cd-item">
+          <span class="cd-number" id="cd-days">--</span>
+          <div class="cd-label">Days</div>
+        </div>
+        <div class="cd-sep">:</div>
+        <div class="cd-item">
+          <span class="cd-number" id="cd-hours">--</span>
+          <div class="cd-label">Hours</div>
+        </div>
+        <div class="cd-sep">:</div>
+        <div class="cd-item">
+          <span class="cd-number" id="cd-minutes">--</span>
+          <div class="cd-label">Minutes</div>
+        </div>
+        <div class="cd-sep">:</div>
+        <div class="cd-item">
+          <span class="cd-number" id="cd-seconds">--</span>
+          <div class="cd-label">Seconds</div>
+        </div>
+      </div>
+
+      <div class="cd-event-info fade-in">
+        <div class="ornament" style="margin:2.2rem auto 1rem;">
+          <div class="ornament-line"></div>
+          <div class="ornament-diamond"></div>
+          <div class="ornament-line"></div>
+        </div>
+        <div class="date-chip">Monday &nbsp;·&nbsp; 16 November 2026 &nbsp;·&nbsp; 7:00 AM</div>
+        <p class="hero-venue-sub" style="margin-top:.45rem;">Sri Devi Palace AC Marriage Hall, Chennai</p>
+      </div>
+    </section>
+
+    <!-- ===== EVENTS ===== -->
+    <section id="events">
+      <p class="section-label fade-in">Join Us For</p>
+      <h2 class="section-title fade-in">Our Celebrations</h2>
+
+      <div class="ornament fade-in">
+        <div class="ornament-line"></div>
+        <div class="ornament-diamond"></div>
+        <div class="ornament-line"></div>
+      </div>
+
+      <div class="events-grid">
+
+        <!-- Reception -->
+        <div class="event-card fade-in d1">
+          <div class="card-corner tl"></div><div class="card-corner tr"></div>
+          <div class="card-corner bl"></div><div class="card-corner br"></div>
+          <svg class="card-icon-wrap" width="38" height="22" viewBox="0 0 60 36" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+            <circle cx="20" cy="18" r="14" stroke="#C9A84C" stroke-width="1.2" fill="rgba(201,168,76,0.06)"/>
+            <circle cx="40" cy="18" r="14" stroke="#C9A84C" stroke-width="1.2" fill="rgba(201,168,76,0.06)"/>
+          </svg>
+          <div class="card-title">Reception</div>
+          <div class="card-row">
+            <span class="card-row-icon">📅</span>
+            <div class="card-row-body"><strong>Sunday, 15th November 2026</strong></div>
+          </div>
+          <div class="card-row">
+            <span class="card-row-icon">⏰</span>
+            <div class="card-row-body"><strong>6:30 PM onwards</strong></div>
+          </div>
+          <div class="card-row">
+            <span class="card-row-icon">📍</span>
+            <div class="card-row-body">Sri Devi Palace AC Marriage Hall,<br>Medavakkam, Chennai</div>
+          </div>
+          <p class="card-note">Join us for an evening of celebration,<br>happiness and togetherness.</p>
+        </div>
+
+        <!-- Muhurtham -->
+        <div class="event-card fade-in d2">
+          <div class="card-corner tl"></div><div class="card-corner tr"></div>
+          <div class="card-corner bl"></div><div class="card-corner br"></div>
+          <svg class="card-icon-wrap" width="38" height="22" viewBox="0 0 60 36" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+            <circle cx="20" cy="18" r="14" stroke="#C9A84C" stroke-width="1.2" fill="rgba(201,168,76,0.06)"/>
+            <circle cx="40" cy="18" r="14" stroke="#C9A84C" stroke-width="1.2" fill="rgba(201,168,76,0.06)"/>
+          </svg>
+          <div class="card-title">Muhurtham</div>
+          <div class="card-row">
+            <span class="card-row-icon">📅</span>
+            <div class="card-row-body"><strong>Monday, 16th November 2026</strong></div>
+          </div>
+          <div class="card-row">
+            <span class="card-row-icon">⏰</span>
+            <div class="card-row-body"><strong>6:00 AM to 7:15 AM</strong></div>
+          </div>
+          <div class="card-row">
+            <span class="card-row-icon">📍</span>
+            <div class="card-row-body">Sri Devi Palace AC Marriage Hall,<br>Medavakkam, Chennai</div>
+          </div>
+          <p class="card-note">Your presence and blessings will make<br>this day even more meaningful to us.</p>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- ===== FAMILIES ===== -->
+    <section id="families">
+      <p class="section-label fade-in">With the Blessing of</p>
+      <h2 class="section-title fade-in">Our Families</h2>
+
+      <div class="ornament fade-in">
+        <div class="ornament-line"></div>
+        <div class="ornament-diamond"></div>
+        <div class="ornament-line"></div>
+      </div>
+
+      <p class="families-subtitle fade-in">Two Families, One Home</p>
+
+      <div class="ornament fade-in" style="margin-bottom:1.5rem;">
+        <div class="ornament-line"></div>
+        <div class="ornament-diamond"></div>
+        <div class="ornament-line"></div>
+      </div>
+
+      <div class="families-grid">
+
+        <!-- Groom -->
+        <div class="family-card fade-in d1">
+          <div class="fc-corner tl"></div><div class="fc-corner tr"></div>
+          <div class="fc-corner bl"></div><div class="fc-corner br"></div>
+          <div class="family-role">The Groom</div>
+          <div class="fc-divider"></div>
+          <div class="family-name">Adithan P</div>
+          <div class="family-beloved">Beloved Son of</div>
+          <div class="family-parents">
+            Mr. B. Padmavijayan<br>Mrs. P. Rajamani
+          </div>
+        </div>
+
+        <!-- Bride -->
+        <div class="family-card fade-in d2">
+          <div class="fc-corner tl"></div><div class="fc-corner tr"></div>
+          <div class="fc-corner bl"></div><div class="fc-corner br"></div>
+          <div class="family-role">The Bride</div>
+          <div class="fc-divider"></div>
+          <div class="family-name">Deepa D</div>
+          <div class="family-beloved">Beloved Daughter of</div>
+          <div class="family-parents">
+            Mr. A. Durai<br>Mrs. D. Malathi
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- ===== VENUE ===== -->
+    <section id="venue">
+      <p class="section-label fade-in">Find Us At</p>
+      <h2 class="section-title fade-in">The Venue</h2>
+
+      <div class="ornament fade-in">
+        <div class="ornament-line"></div>
+        <div class="ornament-diamond"></div>
+        <div class="ornament-line"></div>
+      </div>
+
+      <div class="venue-card fade-in">
+        <div class="card-corner tl"></div><div class="card-corner tr"></div>
+        <div class="card-corner bl"></div><div class="card-corner br"></div>
+        <span class="venue-icon" aria-hidden="true">🏛️</span>
+        <div class="venue-name">Sri Devi Palace<br>AC Marriage Hall</div>
+        <p class="venue-address">
+          #119, Vengaivasal Main Road,<br>
+          Santhosapuram, Medavakkam,<br>
+          Chennai &mdash; 600073
+        </p>
+        <a href="https://www.google.com/maps/place/Sri+Devi+Palace+AC+Marriage+hall+%7C+Kalyana+Mandapam+in+Chennai/data=!4m7!3m6!1s0x3a525eb949ab7259:0x6b5486564df77b54!8m2!3d12.9127668!4d80.1696651!16s%2Fg%2F11bw46qxfm!19sChIJWXKrSbleUjoRVHv3TVaGVGs"
+           target="_blank" rel="noopener noreferrer" class="map-btn">
+          📍 &nbsp; Open in Maps
+        </a>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- ======================================================
+       FOOTER
+  ====================================================== -->
+  <footer>
+    <div class="footer-ring" aria-hidden="true"></div>
+    <p class="footer-quote">
+      "A great love is built one day at a time —<br>
+      may your life together be filled with laughter,<br>
+      devotion, and the joy of a thousand tomorrows."
+    </p>
+    <div class="ornament" style="max-width:280px;margin:1.4rem auto 2rem;">
+      <div class="ornament-line"></div>
+      <div class="ornament-diamond"></div>
+      <div class="ornament-line"></div>
+    </div>
+    <p class="footer-closing">We look forward to celebrating with you.</p>
+    <div style="height:1rem"></div>
+    <div class="ornament" style="max-width:260px;margin:.6rem auto;">
+      <div class="ornament-line"></div>
+      <div class="ornament-diamond"></div>
+      <div class="ornament-line"></div>
+    </div>
+    <p class="footer-couple">Adithan weds Deepa</p>
+    <p class="footer-date">16th November 2026</p>
+  </footer>
+
+  <!-- ======================================================
+       JAVASCRIPT
+  ====================================================== -->
+  <script>
+    /* ----- COVER ----- */
+    const cover = document.getElementById('cover');
+    function openCover() {
+      cover.classList.add('open');
+      cover.setAttribute('aria-hidden', 'true');
+      // Begin revealing hero content as background fades away
+      setTimeout(() => {
+        document.querySelectorAll('#hero .fade-in').forEach((el, i) => {
+          setTimeout(() => el.classList.add('visible'), i * 100);
+        });
+      }, 500);
+      // Remove cover from DOM after doors have fully swung away
+      setTimeout(() => cover.classList.add('gone'), 1700);
+    }
+    cover.addEventListener('click', openCover);
+    cover.addEventListener('keydown', e => { if(e.key==='Enter'||e.key===' ') openCover(); });
+
+    /* ----- SNOW ----- */
+    (function spawnSnow() {
+      const layer = document.getElementById('snow-layer');
+      const COUNT = 70;
+      for (let i = 0; i < COUNT; i++) {
+        const f = document.createElement('div');
+        f.className = 'flake';
+        const sz   = 2 + Math.random() * 5;          // 2–7 px
+        const left = Math.random() * 100;             // 0–100 vw
+        const dur  = 6 + Math.random() * 10;         // 6–16 s
+        const del  = Math.random() * -14;            // stagger start
+        const sway = (Math.random() - 0.5) * 80;    // ±40 px horizontal drift
+        const op   = 0.35 + Math.random() * 0.55;   // 0.35–0.9
+        f.style.cssText = [
+          `width:${sz}px`, `height:${sz}px`,
+          `left:${left}%`,
+          `--sway:${sway}px`, `--fop:${op}`,
+          `animation-duration:${dur}s`,
+          `animation-delay:${del}s`,
+        ].join(';');
+        layer.appendChild(f);
+      }
+    })();
+
+    /* ----- COUNTDOWN (target: 16 Nov 2026, 7:00 AM) ----- */
+    const target = new Date('2026-11-16T07:00:00');
+    function pad(n) { return String(n).padStart(2,'0'); }
+    function tick() {
+      const diff = target - new Date();
+      if (diff <= 0) {
+        ['days','hours','minutes','seconds'].forEach(id =>
+          document.getElementById('cd-'+id).textContent = '00'
+        );
+        return;
+      }
+      document.getElementById('cd-days').textContent    = pad(Math.floor(diff/86400000));
+      document.getElementById('cd-hours').textContent   = pad(Math.floor((diff%86400000)/3600000));
+      document.getElementById('cd-minutes').textContent = pad(Math.floor((diff%3600000)/60000));
+      document.getElementById('cd-seconds').textContent = pad(Math.floor((diff%60000)/1000));
+    }
+    tick();
+    setInterval(tick, 1000);
+
+    /* ----- SCROLL FADE-IN ----- */
+    const io = new IntersectionObserver(entries => {
+      entries.forEach(e => { if(e.isIntersecting) e.target.classList.add('visible'); });
+    }, { threshold: 0.1 });
+    document.querySelectorAll('.fade-in').forEach(el => io.observe(el));
+
+    /* ----- ACTIVE NAV ----- */
+    const sections = document.querySelectorAll('section[id]');
+    const navLinks = document.querySelectorAll('#nav a');
+    const navIO = new IntersectionObserver(entries => {
+      entries.forEach(e => {
+        if (e.isIntersecting) {
+          navLinks.forEach(l => l.classList.remove('active'));
+          const lnk = document.querySelector(`#nav a[href="#${e.target.id}"]`);
+          if (lnk) lnk.classList.add('active');
+        }
+      });
+    }, { threshold: 0.45 });
+    sections.forEach(s => navIO.observe(s));
+  </script>
+
+</body>
+</html>
